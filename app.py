@@ -11,8 +11,12 @@ if not os.path.exists(file_path):
     st.error("File CSV tidak ditemukan di GitHub")
     st.stop()
 
-df = pd.read_csv(file_path)
+df = pd.read_csv("hasil_labeling_sentimen.csv
+
 df.columns = df.columns.str.lower()
+
+st.write(df.columns) 
+
 
 # kalau kolom sentiment tidak ada, stop biar jelas
 if "sentiment" not in df.columns:
