@@ -10,47 +10,44 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. Custom CSS untuk tampilan modern dan rapi
-# 2. Custom CSS untuk tampilan modern dan rapi
+# 2. Custom CSS untuk tampilan modern (Sudah dirapikan indentasinya)
 st.markdown("""
-    <style>
-    .main-title {
-        font-size: 32px;
-        font-weight: bold;
-        color: #1E3A8A;
-        margin-bottom: 5px;
-    }
-    .subtitle {
-        font-size: 16px;
-        color: #4B5563;
-        margin-bottom: 25px;
-    }
-    .section-header {
-        font-size: 22px;
-        font-weight: bold;
-        color: #1E3A8A;
-        border-bottom: 2px solid #E5E7EB;
-        padding-bottom: 8px;
-        margin-top: 20px;
-        margin-bottom: 15px;
-    }
-    .card {
-        background-color: #F9FAFB;
-        padding: 20px;
-        border-radius: 10px;
-        border-left: 5px solid #3B82F6;
-        margin-bottom: 15px;
-    }
-    .step-title {
-        font-weight: bold;
-        color: #2563EB;
-    }
-    </style>
-""", unsafe_allow_html=True) # <-- PERBAIKAN DI SINI (Ganti unsafe_value menjadi unsafe_allow_html)
-    </style>
-""", unsafe_value=True)
+<style>
+.main-title {
+    font-size: 32px;
+    font-weight: bold;
+    color: #1E3A8A;
+    margin-bottom: 5px;
+}
+.subtitle {
+    font-size: 16px;
+    color: #4B5563;
+    margin-bottom: 25px;
+}
+.section-header {
+    font-size: 22px;
+    font-weight: bold;
+    color: #1E3A8A;
+    border-bottom: 2px solid #E5E7EB;
+    padding-bottom: 8px;
+    margin-top: 20px;
+    margin-bottom: 15px;
+}
+.card {
+    background-color: #F9FAFB;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 5px solid #3B82F6;
+    margin-bottom: 15px;
+}
+.step-title {
+    font-weight: bold;
+    color: #2563EB;
+}
+</style>
+""", unsafe_allow_html=True)
 
-# 3. Fungsi Load Data yang Aman dari Gagal Baca File
+# 3. Fungsi Load Data yang Aman
 @st.cache_data
 def load_data():
     file_path = "hasil_labeling_sentimen.csv"
@@ -81,10 +78,10 @@ with st.sidebar:
 
 # ================= PAGE 1: HOME & ALUR =================
 if page == "🏠 Beranda & Alur":
-    st.markdown('<div class="main-title">ANALISIS SENTIMEN KOMENTAR TIKTOK</div>', unsafe_value=True)
-    st.markdown('<div class="subtitle">Sistem Prototype Klasifikasi Sentimen Masyarakat Menggunakan Multinomial Logistic Regression & TF-IDF</div>', unsafe_value=True)
+    st.markdown('<div class="main-title">ANALISIS SENTIMEN KOMENTAR TIKTOK</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitle">Sistem Prototype Klasifikasi Sentimen Masyarakat Menggunakan Multinomial Logistic Regression & TF-IDF</div>', unsafe_allow_html=True)
     
-    st.markdown('<div class="section-header">Pipeline & Alur Sistem Analisis</div>', unsafe_value=True)
+    st.markdown('<div class="section-header">Pipeline & Alur Sistem Analisis</div>', unsafe_allow_html=True)
     
     steps = [
         ("1. Pengumpulan Data", "Proses scraping data komentar dari platform TikTok menggunakan kata kunci atau tren spesifik yang sedang diteliti. Data hasil scraping diekspor ke format berkas tabular (.csv) sebagai basis dataset mentah."),
@@ -101,17 +98,17 @@ if page == "🏠 Beranda & Alur":
             <span class="step-title">{title}</span><br>
             <p style="margin-top: 5px; margin-bottom: 0px; color: #374151; font-size: 14px;">{desc}</p>
         </div>
-        """, unsafe_value=True)
+        """, unsafe_allow_html=True)
         
     if os.path.exists("images/alur.png"):
         st.image("images/alur.png", caption="Diagram Alir Arsitektur Sistem", use_column_width=True)
 
 # ================= PAGE 2: HASIL PENELITIAN =================
 elif page == "📊 Hasil Penelitian & Eksperimen":
-    st.markdown('<div class="main-title">HASIL PENELITIAN & EVALUASI MODEL</div>', unsafe_value=True)
-    st.markdown('<div class="subtitle">Eksplorasi Data, Distribusi Kelas, dan Metrik Kinerja Akurasi</div>', unsafe_value=True)
+    st.markdown('<div class="main-title">HASIL PENELITIAN & EVALUASI MODEL</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitle">Eksplorasi Data, Distribusi Kelas, dan Metrik Kinerja Akurasi</div>', unsafe_allow_html=True)
     
-    st.markdown('<div class="section-header">Metrik Ringkasan Dataset (Overview)</div>', unsafe_value=True)
+    st.markdown('<div class="section-header">Metrik Ringkasan Dataset (Overview)</div>', unsafe_allow_html=True)
     
     col1, col2, col3, col4 = st.columns(4)
     
@@ -125,7 +122,7 @@ elif page == "📊 Hasil Penelitian & Eksperimen":
     col3.metric("Sentimen Netral", f"{net_data}")
     col4.metric("Sentimen Negatif", f"{neg_data}")
     
-    st.markdown('<div class="section-header">Visualisasi Hasil Eksperimen</div>', unsafe_value=True)
+    st.markdown('<div class="section-header">Visualisasi Hasil Eksperimen</div>', unsafe_allow_html=True)
     
     tab1, tab2, tab3 = st.tabs(["☁️ WordCloud (Kata Kunci)", "📊 Distribusi Sentimen", "🎯 Confusion Matrix"])
     
@@ -152,10 +149,10 @@ elif page == "📊 Hasil Penelitian & Eksperimen":
 
 # ================= PAGE 3: ANALISIS BARU =================
 elif page == "✍️ Aplikasi Analisis Sentimen Real-time":
-    st.markdown('<div class="main-title">PREDIKSI SENTIMEN REAL-TIME</div>', unsafe_value=True)
-    st.markdown('<div class="subtitle">Uji coba interaktif prototype model klasifikasi terhadap teks komentar baru</div>', unsafe_value=True)
+    st.markdown('<div class="main-title">PREDIKSI SENTIMEN REAL-TIME</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitle">Uji coba interaktif prototype model klasifikasi terhadap teks komentar baru</div>', unsafe_allow_html=True)
     
-    st.markdown('<div class="section-header">Masukkan Teks Komentar TikTok</div>', unsafe_value=True)
+    st.markdown('<div class="section-header">Masukkan Teks Komentar TikTok</div>', unsafe_allow_html=True)
     text_input = st.text_area("Tulis atau tempel komentar di bawah ini:", height=120, placeholder="Masukkan teks contoh komentar TikTok...")
     
     if st.button("🚀 Jalankan Proses Analisis", type="primary"):
