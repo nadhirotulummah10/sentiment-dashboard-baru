@@ -4,7 +4,7 @@ import pandas as pd
 
 st.set_page_config(page_title="Analisis Sentimen", layout="wide")
 
-pd.read_csv("hasil_labeling_sentimen.csv")
+df = pd.read_csv("hasil_labeling_sentimen.csv")
 
 # ================= STATE PAGE =================
 if "page" not in st.session_state:
@@ -12,9 +12,7 @@ if "page" not in st.session_state:
 
 # ================= HALAMAN 1 =================
 if st.session_state.page == "home":
-    st.title("ANALISIS SENTIMEN TIKTOK")
-
-    st.image("images/alur.png")
+    st.title("Analisis Sentimen Tiktok Terhadap Program Makan Bergizi Gratis pada Tiktok Menggunakan Logistic Regression")
 
     st.write("### Alur Analisis:")
     st.write("Pengumpulan Data → Preprocessing → TF-IDF → Model → Evaluasi → Visualisasi")
