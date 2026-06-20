@@ -7,13 +7,12 @@ st.set_page_config(page_title="Analisis Sentimen TikTok", layout="wide")
 # ================= LOAD DATA =================
 df = pd.read_csv("hasil_labeling_sentimen.csv")
 
-# ================= PAGE STATE =================
+# ================= STATE =================
 if "page" not in st.session_state:
     st.session_state.page = "home"
 
 # ================= HOME =================
 if st.session_state.page == "home":
-
     st.title("ANALISIS SENTIMEN TIKTOK")
 
     st.write("Alur Analisis:")
@@ -32,7 +31,6 @@ if st.session_state.page == "home":
 
 # ================= HASIL =================
 elif st.session_state.page == "hasil":
-
     st.title("HASIL PENELITIAN")
 
     st.subheader("Overview Dataset")
@@ -46,7 +44,7 @@ elif st.session_state.page == "hasil":
     st.write("---")
 
     st.subheader("Pengumpulan Data")
-    st.write("Data komentar TikTok dikumpulkan sebagai dataset penelitian.")
+    st.write("Data dikumpulkan dari komentar TikTok.")
 
     st.subheader("Preprocessing")
     st.write("Cleaning, tokenizing, stopword removal.")
@@ -72,13 +70,12 @@ elif st.session_state.page == "hasil":
 
 # ================= ANALISIS =================
 elif st.session_state.page == "analisis":
-
     st.title("ANALISIS BARU")
 
     text = st.text_area("Masukkan komentar:")
 
     if st.button("Proses"):
-        st.success("Prototype belum terhubung model")
+        st.info("Prototype belum terhubung model")
 
     if st.button("⬅ Kembali"):
         st.session_state.page = "home"
