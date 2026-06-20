@@ -8,6 +8,7 @@ st.set_page_config(page_title="Sentiment Analysis TikTok", layout="wide")
 df = pd.read_csv("hasil_labeling_sentimen.csv")
 df.columns = df.columns.str.lower()
 
+st.write(df.columns)
 # ================= SESSION =================
 if "page" not in st.session_state:
     st.session_state.page = "home"
@@ -38,14 +39,15 @@ elif st.session_state.page == "hasil":
 
     st.title("DASHBOARD HASIL PENELITIAN")
 
-    st.markdown("## Overview Dataset")
+    st.markdown("## Overview")
 
     col1, col2, col3 = st.columns(3)
 
     col1.metric("Total Data", len(df))
-    col2.metric("Positif", len(df[df["sentimen"]=="positif"]))
-    col3.metric("Netral", len(df[df["sentimen"]=="netral"]))
-
+    col2.metric("Positif", len(df[df["sentiment"].astype(str)=="positif"]
+    col3.metric("Netral", len(df[df["sentiment"].astype(str)=="netral"]
+    col3.metric("Negatif", len(df[df["sentiment"].astype(str)=="negatif"]
+    
     st.write("---")
 
     st.markdown("## Tahapan Analisis")
