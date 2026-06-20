@@ -11,6 +11,7 @@ st.set_page_config(
 )
 
 # 2. Custom CSS untuk tampilan modern dan rapi
+# 2. Custom CSS untuk tampilan modern dan rapi
 st.markdown("""
     <style>
     .main-title {
@@ -44,6 +45,8 @@ st.markdown("""
         font-weight: bold;
         color: #2563EB;
     }
+    </style>
+""", unsafe_allow_html=True) # <-- PERBAIKAN DI SINI (Ganti unsafe_value menjadi unsafe_allow_html)
     </style>
 """, unsafe_value=True)
 
