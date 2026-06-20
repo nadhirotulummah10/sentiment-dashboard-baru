@@ -11,7 +11,7 @@ if not os.path.exists(file_path):
     st.error("File CSV tidak ditemukan di GitHub")
     st.stop()
 
-df = pd.read_csv("hasil_labeling_sentimen.csv
+df = pd.read_csv("hasil_labeling_sentimen.csv")
 
 df.columns = df.columns.str.lower()
 
