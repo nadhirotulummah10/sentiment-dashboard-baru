@@ -4,18 +4,31 @@ import os
 
 st.set_page_config(page_title="Analisis Sentimen TikTok", layout="wide")
 
-# ================= LOAD DATA =================
-df = pd.read_csv("hasil_labeling_sentimen.csv")
+# ================= LOAD DATA (AMAN) =================
+file_path = "hasil_labeling_sentimen.csv"
 
-# ================= SESSION =================
+if not os.path.exists(file_path):
+    st.error("File CSV tidak ditemukan di GitHub")
+    st.stop()
+
+df = pd.read_csv(file_path)
+df.columns = df.columns.str.lower()
+
+# kalau kolom sentiment tidak ada, stop biar jelas
+if "sentiment" not in df.columns:
+    st.error("Kolom 'sentiment' tidak ada di CSV")
+    st.stop()
+
+# ================= STATE =================
 if "page" not in st.session_state:
     st.session_state.page = "home"
 
 # ================= HOME =================
 if st.session_state.page == "home":
+
     st.title("ANALISIS SENTIMEN TIKTOK")
 
-    st.write("Alur:")
+    st.write("Alur penelitian:")
     st.write("Data → Preprocessing → Pelabelan → Visualisasi")
 
     if os.path.exists("images/alur.png"):
@@ -31,26 +44,33 @@ if st.session_state.page == "home":
 
 # ================= HASIL =================
 elif st.session_state.page == "hasil":
-    st.title("HASIL PENELITIAN")
 
-    st.subheader("Overview")
+    st.title("DASHBOARD HASIL PENELITIAN")
 
-    col1, col2, col3 = st.columns(3)
+    st.write("---")
 
-    col1.metric("Total Data", len(df))
-    col2.metric("Positif", len(df[df["sentiment"] == "positif"]))
-    col3.metric("Netral", len(df[df["sentiment"] == "netral"]))
+    total = len(df)
+    positif = len(df[df["sentiment"].astype(str) == "positif"])
+    netral = len(df[df["sentiment"].astype(str) == "netral"])
+    negatif = len(df[df["sentiment"].astype(str) == "negatif"])
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    col1.metric("Total", total)
+    col2.metric("Positif", positif)
+    col3.metric("Netral", netral)
+    col4.metric("Negatif", negatif)
 
     st.write("---")
 
     st.subheader("Pengumpulan Data")
-    st.write("Data diambil dari komentar TikTok.")
+    st.write("Data komentar TikTok dikumpulkan sebagai dataset penelitian.")
 
     st.subheader("Preprocessing")
-    st.write("Cleaning dan text processing.")
+    st.write("Cleaning, case folding, tokenizing, stopword removal.")
 
     st.subheader("Pelabelan")
-    st.write("Lexicon-based sentiment labeling.")
+    st.write("Lexicon-based sentiment analysis digunakan untuk memberi label.")
 
     st.write("---")
 
@@ -70,12 +90,16 @@ elif st.session_state.page == "hasil":
 
 # ================= ANALISIS =================
 elif st.session_state.page == "analisis":
+
     st.title("ANALISIS BARU")
 
     text = st.text_area("Masukkan komentar:")
 
     if st.button("Proses"):
-        st.success("Prototype berjalan (belum pakai model)")
+        if text.strip() == "":
+            st.warning("Masukkan teks dulu")
+        else:
+            st.success("Prototype berjalan (belum terhubung model ML)")
 
     if st.button("⬅ Kembali"):
         st.session_state.page = "home"
