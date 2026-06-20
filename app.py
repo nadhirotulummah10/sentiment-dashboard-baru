@@ -2,33 +2,24 @@ import streamlit as st
 import pandas as pd
 import os
 
-st.set_page_config(page_title="Analisis Sentimen TikTok", layout="wide")
+st.set_page_config(page_title="Analisis Sentimen", layout="wide")
 
 # ================= LOAD DATA =================
-file_path = "hasil_labeling_sentimen.csv"
+df = pd.read_csv("hasil_labeling_sentimen.csv")
 
-if os.path.exists(file_path):
-    df = pd.read_csv(file_path)
-    df.columns = df.columns.str.lower()
-else:
-    st.error("File CSV tidak ditemukan di GitHub (root folder)")
-    st.stop()
-
-# ================= SESSION STATE =================
+# ================= STATE PAGE =================
 if "page" not in st.session_state:
     st.session_state.page = "home"
 
-# ================= HALAMAN HOME =================
+# ================= HALAMAN 1 =================
 if st.session_state.page == "home":
     st.title("ANALISIS SENTIMEN TIKTOK")
-
-    st.markdown("### Alur Penelitian")
-    st.write("Pengumpulan Data → Preprocessing → Pelabelan → Model → Evaluasi → Visualisasi")
 
     if os.path.exists("images/alur.png"):
         st.image("images/alur.png")
 
-    st.write("---")
+    st.write("### Alur Analisis:")
+    st.write("Pengumpulan Data → Preprocessing → TF-IDF → Model → Evaluasi → Visualisasi")
 
     col1, col2 = st.columns(2)
 
@@ -38,34 +29,46 @@ if st.session_state.page == "home":
     if col2.button("✍️ Analisis Baru"):
         st.session_state.page = "analisis"
 
-# ================= HALAMAN HASIL =================
+# ================= HALAMAN 2 =================
 elif st.session_state.page == "hasil":
     st.title("HASIL PENELITIAN")
 
-    st.subheader("Overview Dataset")
+    st.write("## Overview")
 
     col1, col2, col3 = st.columns(3)
 
     col1.metric("Total Data", len(df))
-    col2.metric("Positif", len(df[df["sentiment"] == "positif"]))
-    col3.metric("Netral", len(df[df["sentiment"] == "netral"]))
+    col2.metric("Positif", len(df[df["sentiment"]=="positif"]))
+    col3.metric("Netral", len(df[df["sentiment"]=="netral"]))
 
     st.write("---")
 
-    st.subheader("Pengumpulan Data")
-    st.write("Data dikumpulkan dari komentar TikTok sebagai dataset penelitian.")
+    st.write("## Pengumpulan Data")
+    st.write("Data komentar TikTok dikumpulkan dan diproses.")
 
-    st.subheader("Preprocessing")
-    st.write("Tahap cleaning, case folding, tokenizing, stopword removal.")
+    st.write("## Preprocessing")
+    st.write("Cleaning, tokenizing, stopword removal.")
 
-    st.subheader("Pelabelan")
-    st.write("Menggunakan lexicon-based sentiment analysis.")
+    st.write("## Pelabelan")
+    st.write("Menggunakan lexicon-based sentiment labeling.")
 
-    st.write("---")
+    st.write("## Hasil Visualisasi")
 
-    st.subheader("Visualisasi Hasil")
+    st.image("images/wordcloud.png")
+    st.image("images/distribusi.png")
+    st.image("images/confusion_matrix.png")
 
-    if os.path.exists("wordcloud_hasil_preprocessing.png"):
-        st.image("wordcloud_hasil_preprocessing.png")
+    if st.button("⬅ Kembali"):
+        st.session_state.page = "home"
 
-    if os
+# ================= HALAMAN 3 =================
+elif st.session_state.page == "analisis":
+    st.title("ANALISIS BARU")
+
+    text = st.text_area("Masukkan komentar:")
+
+    if st.button("Proses"):
+        st.info("Fitur analisis belum diaktifkan (prototype)")
+
+    if st.button("⬅ Kembali"):
+        st.session_state.page = "home"
