@@ -1,48 +1,70 @@
 import streamlit as st
 import pandas as pd
+import os
 
+# Konfigurasi Halaman
 st.set_page_config(page_title="Analisis Sentimen TikTok", layout="wide")
 
-st.title("Sistem Analisis Sentimen TikTok: Makan Bergizi Gratis")
+# Navigasi Sidebar
+with st.sidebar:
+    st.title("Navigasi")
+    page = st.radio("Pilih Halaman:", ["🏠 Beranda & Alur", "📊 Hasil Penelitian"])
 
-# 1. PENGUMPULAN DATA
-st.header("1. Pengumpulan Data (Scraping)")
-st.write("Proses penarikan 3.320 data mentah dari komentar TikTok.")
-df_scrap = pd.DataFrame({'User': ['user_1', 'user_2'], 'Komentar': ['Gaji 💀', 'Semenjak ada MBG...']})
-st.dataframe(df_scrap)
-st.caption("Penjelasan: Data mentah diambil menggunakan scraping untuk menangkap opini masyarakat.")
+# ==========================================
+# HALAMAN 1: BERANDA & ALUR (Penjelasan Saja)
+# ==========================================
+if page == "🏠 Beranda & Alur":
+    st.title("🏠 Beranda & Alur Penelitian")
+    st.write("Penelitian ini menganalisis sentimen masyarakat di TikTok terkait program Makan Bergizi Gratis.")
+    
+    st.subheader("Alur Kerja Sistem")
+    st.markdown("""
+    1. **Pengumpulan Data:** Melakukan *scraping* komentar dari platform TikTok.
+    2. **Preprocessing:** Membersihkan data dari *noise* (emoji, angka, simbol) dan normalisasi kata.
+    3. **Pelabelan:** Mengklasifikasikan komentar menjadi Positif, Netral, atau Negatif menggunakan *Lexicon-Based*.
+    4. **Balancing (SMOTE):** Menyeimbangkan data agar model tidak bias.
+    5. **TF-IDF:** Mengekstraksi fitur kata menjadi bobot numerik.
+    6. **Evaluasi:** Menguji model menggunakan *5-Fold Cross Validation*.
+    """)
 
-# 2. PREPROCESSING
-st.header("2. Preprocessing Data")
-st.write("Pembersihan teks (Case Folding, Normalisasi, Tokenizing, Stopword, Stemming).")
-df_pre = pd.DataFrame({'Awal': ['Gaji 💀'], 'Hasil': ['gaji']})
-st.table(df_pre)
-st.caption("Penjelasan: Menghilangkan noise (emoji/simbol) dan mengubah kata ke bentuk dasar.")
+# ==========================================
+# HALAMAN 2: HASIL PENELITIAN (Tabel & Gambar)
+# ==========================================
+elif page == "📊 Hasil Penelitian":
+    st.title("📊 Hasil Penelitian & Data Eksperimen")
+    
+    # 1. Scraping
+    st.subheader("1. Data Scraping")
+    df_scrap = pd.DataFrame({'User': ['user_1', 'user_2'], 'Komentar': ['Gaji 💀', 'Semenjak ada MBG...']})
+    st.dataframe(df_scrap)
+    st.caption("Penjelasan: Data mentah hasil scraping sebelum diproses.")
 
-# 3. PELABELAN
-st.header("3. Pelabelan (Lexicon-Based)")
-st.write("Penentuan kelas berdasarkan skor kamus kata.")
-df_label = pd.DataFrame({'Kelas': ['Positif', 'Negatif', 'Netral'], 'Jumlah': [975, 1428, 562]})
-st.table(df_label)
-st.caption("Penjelasan: Data dilabeli secara otomatis menggunakan pendekatan lexicon.")
+    # 2. Preprocessing
+    st.subheader("2. Hasil Preprocessing")
+    df_pre = pd.DataFrame({'Awal': ['Gaji 💀'], 'Hasil': ['gaji']})
+    st.table(df_pre)
+    st.caption("Penjelasan: Teks sudah bersih dari noise dan menjadi kata dasar.")
 
-# 4. BALANCING (SMOTE)
-st.header("4. Balancing Data (SMOTE)")
-st.write("Mengatasi imbalance data agar tiap kelas memiliki jumlah 1.428 baris.")
-df_smote = pd.DataFrame({'Kelas': ['Positif', 'Negatif', 'Netral'], 'Sebelum': [975, 1428, 562], 'Sesudah': [1428, 1428, 1428]})
-st.table(df_smote)
-st.caption("Penjelasan: SMOTE menyeimbangkan data agar model tidak bias ke kelas mayoritas.")
+    # 3. Pelabelan
+    st.subheader("3. Pelabelan Sentimen")
+    df_label = pd.DataFrame({'Kelas': ['Positif', 'Negatif', 'Netral'], 'Jumlah': [975, 1428, 562]})
+    st.table(df_label)
+    st.caption("Penjelasan: Distribusi kelas sebelum balancing.")
 
-# 5. TF-IDF
-st.header("5. Ekstraksi Fitur (TF-IDF)")
-st.write("Transformasi teks ke matriks numerik (612 fitur).")
-df_tfidf = pd.DataFrame({'adik': [0.0], 'ahli': [0.0], 'Label': [1]})
-st.dataframe(df_tfidf)
-st.caption("Penjelasan: Mengubah kata menjadi bobot numerik untuk model pembelajaran mesin.")
+    # 4. Balancing (SMOTE)
+    st.subheader("4. Balancing Data (SMOTE)")
+    df_smote = pd.DataFrame({'Kelas': ['Positif', 'Negatif', 'Netral'], 'Sebelum': [975, 1428, 562], 'Sesudah': [1428, 1428, 1428]})
+    st.table(df_smote)
+    st.caption("Penjelasan: Data disetarakan menjadi 1.428 per kelas.")
 
-# 6. EVALUASI (5-FOLD)
-st.header("6. Evaluasi (5-Fold Cross Validation)")
-st.write("Pengujian performa model dengan akurasi rata-rata 79.34%.")
-df_eval = pd.DataFrame({'Fold': [1, 2, 3, 4, 5, 'Rata-rata'], 'Accuracy': [0.80, 0.78, 0.79, 0.77, 0.80, 0.79]})
-st.table(df_eval)
-st.caption("Penjelasan: Nilai rata-rata akurasi 79.34% menunjukkan model stabil dalam memprediksi sentimen.")
+    # 5. TF-IDF
+    st.subheader("5. Matriks TF-IDF")
+    df_tfidf = pd.DataFrame({'adik': [0.0], 'ahli': [0.0], 'Label': [1]})
+    st.dataframe(df_tfidf)
+    st.caption("Penjelasan: Representasi numerik fitur kata.")
+
+    # 6. Evaluasi
+    st.subheader("6. Hasil Evaluasi Model (5-Fold)")
+    df_eval = pd.DataFrame({'Fold': [1, 2, 3, 4, 5, 'Rata-rata'], 'Accuracy': [0.805, 0.785, 0.793, 0.777, 0.806, 0.793]})
+    st.table(df_eval)
+    st.caption("Penjelasan: Akurasi rata-rata model adalah 79.34%.")
