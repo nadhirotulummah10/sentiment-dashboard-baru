@@ -1,76 +1,48 @@
 import streamlit as st
 import pandas as pd
-import os
 
-# Konfigurasi Halaman
-st.set_page_config(
-    page_title="Sistem Analisis Sentimen TikTok",
-    page_icon="📊",
-    layout="wide"
-)
+st.set_page_config(page_title="Analisis Sentimen TikTok", layout="wide")
 
-# CSS Custom
-st.markdown("""
-<style>
-.main-title { font-size: 32px; font-weight: bold; color: #1E3A8A; }
-.subtitle { font-size: 16px; color: #4B5563; margin-bottom: 25px; }
-.section-header { font-size: 22px; font-weight: bold; color: #1E3A8A; border-bottom: 2px solid #E5E7EB; margin-top: 20px; }
-.card { background-color: #F9FAFB; padding: 20px; border-radius: 10px; border-left: 5px solid #3B82F6; margin-bottom: 15px; }
-</style>
-""", unsafe_allow_html=True)
+st.title("Sistem Analisis Sentimen TikTok: Makan Bergizi Gratis")
 
-# Sidebar Navigasi
-with st.sidebar:
-    st.markdown("### Navigasi Sistem")
-    page = st.radio("Pilih Halaman:", ["🏠 Beranda & Alur", "📊 Hasil Penelitian & Evaluasi Model"])
-    st.markdown("---")
-    st.markdown("**Metodologi:** Multinomial Logistic Regression & TF-IDF.")
+# 1. PENGUMPULAN DATA
+st.header("1. Pengumpulan Data (Scraping)")
+st.write("Proses penarikan 3.320 data mentah dari komentar TikTok.")
+df_scrap = pd.DataFrame({'User': ['user_1', 'user_2'], 'Komentar': ['Gaji 💀', 'Semenjak ada MBG...']})
+st.dataframe(df_scrap)
+st.caption("Penjelasan: Data mentah diambil menggunakan scraping untuk menangkap opini masyarakat.")
 
-# Halaman 1: Beranda & Alur (Penjelasan Konsep)
-if page == "🏠 Beranda & Alur":
-    st.markdown('<div class="main-title">ANALISIS SENTIMEN KOMENTAR TIKTOK</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtitle">Sistem Prototype Klasifikasi Sentimen Makan Bergizi Gratis</div>', unsafe_allow_html=True)
-    
-    st.markdown('<div class="section-header">Pipeline Sistem</div>', unsafe_allow_html=True)
-    
-    steps = [
-        ("1. Pengumpulan Data (Scraping)", "Proses penarikan komentar dari TikTok terkait program Makan Bergizi Gratis (MBG)."),
-        ("2. Preprocessing Data", "Pembersihan teks: case folding, normalisasi kata gaul, tokenizing, stopword removal, dan stemming."),
-        ("3. Pelabelan (Lexicon-Based)", "Menentukan kelas Positif, Netral, atau Negatif menggunakan kamus sentimen."),
-        ("4. Balancing Data (SMOTE)", "Penyeimbangan jumlah data kelas untuk mengatasi ketimpangan distribusi (imbalance)."),
-        ("5. Ekstraksi Fitur (TF-IDF)", "Mengubah teks menjadi matriks bobot angka agar dapat dipahami model."),
-        ("6. Klasifikasi & Validasi", "Pelatihan model Multinomial Logistic Regression dengan validasi 5-Fold Cross Validation.")
-    ]
-    
-    for title, desc in steps:
-        st.markdown(f'<div class="card"><strong>{title}</strong><br>{desc}</div>', unsafe_allow_html=True)
+# 2. PREPROCESSING
+st.header("2. Preprocessing Data")
+st.write("Pembersihan teks (Case Folding, Normalisasi, Tokenizing, Stopword, Stemming).")
+df_pre = pd.DataFrame({'Awal': ['Gaji 💀'], 'Hasil': ['gaji']})
+st.table(df_pre)
+st.caption("Penjelasan: Menghilangkan noise (emoji/simbol) dan mengubah kata ke bentuk dasar.")
 
-# Halaman 2: Hasil Penelitian (Data Tabel & Gambar)
-elif page == "📊 Hasil Penelitian & Evaluasi Model":
-    st.markdown('<div class="main-title">HASIL PENELITIAN & EVALUASI MODEL</div>', unsafe_allow_html=True)
-    
-    st.markdown('<div class="section-header">Eksplorasi Data Eksperimen</div>', unsafe_allow_html=True)
-    tabs = st.tabs(["📋 Scraping", "⚙️ Preprocessing", "⚖️ SMOTE", "🔢 TF-IDF"])
-    
-    with tabs[0]:
-        st.dataframe(pd.DataFrame({'Komentar': ["gaji💀", "semenjak ada MBG...", "maaf..."], 'Tanggal': ["2026-02-02", "2026-02-02", "2026-02-02"]}))
-    with tabs[1]:
-        st.dataframe(pd.DataFrame({'Komentar': ["gaji💀"], 'Final_Text': ["gaji"]}))
-    with tabs[2]:
-        st.table(pd.DataFrame({'Kondisi': ['Awal', 'Pasca-SMOTE'], 'Jumlah': ['2965', '4284']}))
-    with tabs[3]:
-        st.dataframe(pd.DataFrame({'adik': [0.0], 'ahli': [0.0], 'Label': [1]}))
+# 3. PELABELAN
+st.header("3. Pelabelan (Lexicon-Based)")
+st.write("Penentuan kelas berdasarkan skor kamus kata.")
+df_label = pd.DataFrame({'Kelas': ['Positif', 'Negatif', 'Netral'], 'Jumlah': [975, 1428, 562]})
+st.table(df_label)
+st.caption("Penjelasan: Data dilabeli secara otomatis menggunakan pendekatan lexicon.")
 
-    st.markdown('<div class="section-header">Evaluasi Model</div>', unsafe_allow_html=True)
-    eval_data = pd.DataFrame({
-        'Fold': ['Fold 1', 'Fold 2', 'Fold 3', 'Fold 4', 'Fold 5', 'Average'],
-        'Accuracy': ['0.8051', '0.7853', '0.7935', '0.7771', '0.8061', '0.7934']
-    })
-    st.table(eval_data)
+# 4. BALANCING (SMOTE)
+st.header("4. Balancing Data (SMOTE)")
+st.write("Mengatasi imbalance data agar tiap kelas memiliki jumlah 1.428 baris.")
+df_smote = pd.DataFrame({'Kelas': ['Positif', 'Negatif', 'Netral'], 'Sebelum': [975, 1428, 562], 'Sesudah': [1428, 1428, 1428]})
+st.table(df_smote)
+st.caption("Penjelasan: SMOTE menyeimbangkan data agar model tidak bias ke kelas mayoritas.")
 
-    st.markdown('<div class="section-header">Visualisasi Grafik</div>', unsafe_allow_html=True)
-    c1, c2, c3 = st.columns(3)
-    # Pastikan file gambar ada di folder yang sama atau sesuaikan path-nya
-    if os.path.exists("wordcloud_hasil_preprocessing.png"): c1.image("wordcloud_hasil_preprocessing.png")
-    if os.path.exists("distribusi_hasil_pelabelan_sentimen.png"): c2.image("distribusi_hasil_pelabelan_sentimen.png")
-    if os.path.exists("confusion_matrix_5fold.png"): c3.image("confusion_matrix_5fold.png")
+# 5. TF-IDF
+st.header("5. Ekstraksi Fitur (TF-IDF)")
+st.write("Transformasi teks ke matriks numerik (612 fitur).")
+df_tfidf = pd.DataFrame({'adik': [0.0], 'ahli': [0.0], 'Label': [1]})
+st.dataframe(df_tfidf)
+st.caption("Penjelasan: Mengubah kata menjadi bobot numerik untuk model pembelajaran mesin.")
+
+# 6. EVALUASI (5-FOLD)
+st.header("6. Evaluasi (5-Fold Cross Validation)")
+st.write("Pengujian performa model dengan akurasi rata-rata 79.34%.")
+df_eval = pd.DataFrame({'Fold': [1, 2, 3, 4, 5, 'Rata-rata'], 'Accuracy': [0.80, 0.78, 0.79, 0.77, 0.80, 0.79]})
+st.table(df_eval)
+st.caption("Penjelasan: Nilai rata-rata akurasi 79.34% menunjukkan model stabil dalam memprediksi sentimen.")
