@@ -160,13 +160,13 @@ elif page == "📊 Hasil Penelitian & Evaluasi Model":
     with tab4:
         st.write("**Tabel Metrik Performa Model - Logistic Regression (5-Fold Cross Validation)**")
         
-        # Angka di bawah ini sinkron 100% dengan foto tabel log-reg fold yang Anda kirim terakhir (image_b95a6f.png)
+        # SINKRON 100% SESUAI GAMBAR TERAKHIR (image_b9b0ca.png)
         eval_data = {
             'Fold': ['Fold 1', 'Fold 2', 'Fold 3', 'Fold 4', 'Fold 5', 'Average'],
-            'Accuracy': ['0.8418', '0.8511', '0.8389', '0.8473', '0.8549', '0.8468'],
-            'Precision': ['0.8376', '0.8453', '0.8322', '0.8410', '0.8504', '0.8413'],
-            'Recall': ['0.8418', '0.8511', '0.8389', '0.8473', '0.8549', '0.8468'],
-            'F1-Score': ['0.8392', '0.8474', '0.8349', '0.8432', '0.8521', '0.8434']
+            'Accuracy': ['0.7437', '0.7605', '0.7622', '0.7845', '0.8111', '0.7724'],
+            'Precision': ['0.7620', '0.7686', '0.7635', '0.7876', '0.8152', '0.7794'],
+            'Recall': ['0.7437', '0.7605', '0.7622', '0.7845', '0.8111', '0.7724'],
+            'F1-Score': ['0.7454', '0.7578', '0.7583', '0.7820', '0.8088', '0.7705']
         }
         st.table(pd.DataFrame(eval_data))
-        st.success("🎯 Model Multinomial Logistic Regression menunjukkan performa yang stabil dengan rata-rata akurasi sebesar 0.8468.")
+        st.success("🎯 Model Multinomial Logistic Regression menunjukkan performa yang stabil dengan rata-rata akurasi sebesar 0.7724.")
