@@ -120,6 +120,7 @@ elif page == "📊 Hasil Penelitian & Eksperimen":
     st.markdown('<div class="main-title">HASIL PENELITIAN & EVALUASI MODEL</div>', unsafe_allow_html=True)
     st.markdown('<div class="subtitle">Eksplorasi Data, Distribusi Kelas, dan Metrik Kinerja Akurasi</div>', unsafe_allow_html=True)
     
+   # Bagian Ringkasan Dataset (Pembaruan Terminologi & Persentase)
     st.markdown('<div class="section-header">Metrik Ringkasan Dataset (Overview)</div>', unsafe_allow_html=True)
     
     col1, col2, col3, col4 = st.columns(4)
@@ -128,10 +129,15 @@ elif page == "📊 Hasil Penelitian & Eksperimen":
     net_data = len(df[df["sentiment"] == "netral"])
     neg_data = len(df[df["sentiment"] == "negatif"])
     
-    col1.metric("Total Data", f"{total_data} Baris")
-    col2.metric("Sentimen Positif (Label 2)", f"{pos_data} ({pos_data/max(1, total_data)*100:.1f}%)")
-    col3.metric("Sentimen Netral (Label 1)", f"{net_data} ({net_data/max(1, total_data)*100:.1f}%)")
-    col4.metric("Sentimen Negatif (Label 0)", f"{neg_data} ({neg_data/max(1, total_data)*100:.1f}%)")
+    # Menghitung persentase dan membulatkan ke bilangan bulat (.0f)
+    p_pos = (pos_data / max(1, total_data)) * 100
+    p_net = (net_data / max(1, total_data)) * 100
+    p_neg = (neg_data / max(1, total_data)) * 100
+    
+    col1.metric("Total Dataset", f"{total_data} Data")
+    col2.metric("Sentimen Positif (Label 2)", f"{pos_data} ({p_pos:.0f}%)")
+    col3.metric("Sentimen Netral (Label 1)", f"{net_data} ({p_net:.0f}%)")
+    col4.metric("Sentimen Negatif (Label 0)", f"{neg_data} ({p_neg:.0f}%)")
     
     st.markdown('<div class="section-header">Visualisasi Hasil Penelitian & Evaluasi Model</div>', unsafe_allow_html=True)
     
