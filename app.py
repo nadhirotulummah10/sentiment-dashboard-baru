@@ -1,9 +1,8 @@
 import streamlit as st
 import pandas as pd
 import os
-import plotly.express as px
 
-# 1. Page Configuration
+# 1. Set page config paling atas
 st.set_page_config(
     page_title="Sistem Analisis Sentimen TikTok",
     page_icon="📊",
@@ -11,183 +10,157 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. Custom CSS untuk Tampilan UI Premium
+# 2. Custom CSS Modern Layout
 st.markdown("""
 <style>
-.main {
-    background-color: #F8FAFC;
-}
 .main-title {
-    font-size: 36px;
-    font-weight: 800;
+    font-size: 32px;
+    font-weight: bold;
     color: #1E3A8A;
-    margin-bottom: 2px;
+    margin-bottom: 5px;
 }
 .subtitle {
     font-size: 16px;
-    color: #64748B;
-    margin-bottom: 30px;
+    color: #4B5563;
+    margin-bottom: 25px;
 }
 .section-header {
     font-size: 22px;
-    font-weight: 700;
-    color: #0F172A;
-    border-bottom: 3px solid #3B82F6;
-    padding-bottom: 6px;
-    margin-top: 25px;
-    margin-bottom: 20px;
+    font-weight: bold;
+    color: #1E3A8A;
+    border-bottom: 2px solid #E5E7EB;
+    padding-bottom: 8px;
+    margin-top: 20px;
+    margin-bottom: 15px;
 }
-.alur-card {
-    background: white;
-    padding: 15px 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
-    border-left: 6px solid #3B82F6;
-    margin-bottom: 12px;
+.card {
+    background-color: #F9FAFB;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 5px solid #3B82F6;
+    margin-bottom: 15px;
 }
 .step-title {
-    font-weight: 700;
-    color: #1E3A8A;
-    font-size: 16px;
-}
-.uji-box {
-    background-color: #EFF6FF;
-    padding: 25px;
-    border-radius: 12px;
-    border: 1px solid #BFDBFE;
-    margin-bottom: 25px;
+    font-weight: bold;
+    color: #2563EB;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# Data statis sebaran dataset (Total 2965)
-total_data = 2965
-neg_data = 1428
-pos_data = 975
-net_data = 562
+# 3. Fungsi Load Data Distribusi Hasil Riset (Total 2965 baris bersih)
+@st.cache_data
+def load_data():
+    file_path = "hasil_labeling_sentimen.csv"
+    if os.path.exists(file_path):
+        try:
+            data = pd.read_csv(file_path)
+            data.columns = data.columns.str.strip()
+            
+            target_col = None
+            for c in data.columns:
+                if c.lower() in ['y_original_mapped', 'sentiment', 'label', 'prediksi']:
+                    target_col = c
+                    break
+            
+            if target_col:
+                def map_label(val):
+                    v_str = str(val).strip().lower()
+                    if v_str in ['0', '0.0', 'negatif', 'negative']: return 'negatif'
+                    elif v_str in ['1', '1.0', 'netral', 'neutral']: return 'netral'
+                    elif v_str in ['2', '2.0', 'positif', 'positive']: return 'positif'
+                    return 'netral'
+                data['sentiment'] = data[target_col].apply(map_label)
+                return data
+        except:
+            pass
+    return pd.DataFrame({'sentiment': ['negatif'] * 1428 + ['positif'] * 975 + ['netral'] * 562})
+
+df = load_data()
 
 # ================= SIDEBAR NAVIGATION =================
 with st.sidebar:
-    st.markdown("<h2 style='color:#1E3A8A;font-weight:800;'>MENU UTAMA</h2>", unsafe_allow_html=True)
-    page = st.sidebar.selectbox(
+    st.markdown("### Navigasi Sistem")
+    page = st.radio(
         "Pilih Halaman:",
-        ["🏠 Beranda & Demo Aplikasi", "📊 Eksplorasi Data & Kinerja Model"]
+        [" Beranda & Alur", " Hasil Penelitian & Evaluasi Model"]
     )
     st.markdown("---")
-    st.markdown("**Spesifikasi Sistem:**\n- Algoritma: Multinomial Logistic Regression\n- Fitur: TF-IDF\n- Validasi: Stratified 5-Fold CV")
+    st.markdown("**Metodologi:**\nMultinomial Logistic Regression dengan Ekstraksi Fitur TF-IDF.")
 
-# ================= PAGE 1: HOME & DEMO PENGUJIAN =================
-if page == "🏠 Beranda & Demo Aplikasi":
-    st.markdown('<div class="main-title">SISTEM ANALISIS SENTIMEN TIKTOK</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtitle">Prototype Klasifikasi Sentimen Terhadap Program Makan Bergizi Gratis Menggunakan Multinomial Logistic Regression</div>', unsafe_allow_html=True)
+# ================= PAGE 1: HOME & ALUR =================
+if page == "🏠 Beranda & Alur":
+    st.markdown('<div class="main-title">ANALISIS SENTIMEN KOMENTAR TIKTOK</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitle">Sistem Prototype Klasifikasi Sentimen Masyarakat Menggunakan Multinomial Logistic Regression & TF-IDF</div>', unsafe_allow_html=True)
     
-    # --- FITUR INTERAKTIF: DEMO UJI KALIMAT ---
-    st.markdown('<div class="section-header">🔮 Demo Simulasi Pengujian Kalimat Real-Time</div>', unsafe_allow_html=True)
-    st.markdown('<div class="uji-box">', unsafe_allow_html=True)
-    user_text = st.text_input("Ketik komentar TikTok di sini untuk menguji model:", placeholder="Contoh: Program makan siang gratis ini sangat bermanfaat untuk gizi anak sekolah!")
+    st.markdown('<div class="section-header">Pipeline & Alur Sistem Analisis</div>', unsafe_allow_html=True)
     
-    if user_text:
-        text_lower = user_text.lower()
-        if any(w in text_lower for w in ['bagus', 'manfaat', 'setuju', 'mantap', 'gratis', 'gizi', 'dukung', 'baik']):
-            st.success("**Hasil Analisis:** Sentimen **POSITIF** (Confidence Score: 89.4%)")
-        elif any(w in text_lower for w in ['kecewa', 'korupsi', 'anggaran', 'rugi', 'mahal', 'tolak', 'buruk', 'kurang']):
-            st.error("**Hasil Analisis:** Sentimen **NEGATIF** (Confidence Score: 91.2%)")
-        else:
-            st.warning("**Hasil Analisis:** Sentimen **NETRAL** (Confidence Score: 76.5%)")
-    st.markdown('</div>', unsafe_allow_html=True)
+    steps = [
+        ("1. Pengumpulan Data", "Proses scraping data komentar dari platform TikTok menggunakan kata kunci program terkait. Total data awal yang berhasil dikumpulkan adalah 3.320 baris data mentah."),
+        ("2. Preprocessing Data", "Tahapan pembersihan data teks (text cleaning) meliputi Case Folding, Removal (URL, angka, username, emoji, tanda baca), Tokenizing, Normalization (perbaikan kata gaul), dan Filtering/Stopword Removal sehingga menghasilkan 2.965 data bersih."),
+        ("3. Pelabelan (Labeling)", "Proses penentuan kelas awal sentimen menjadi kelas Positif, Netral, atau Negatif menggunakan pendekatan berbasis kamus kata (Lexicon-Based)."),
+        ("4. Balance Data (Penyeimbangan Data)", "Mengatasi ketimpangan sebaran data (data imbalance) antar-kelas sentimen menggunakan SMOTE agar model klasifikasi Logistic Regression tidak condong (bias) terhadap kelas mayoritas."),
+        ("5. Ekstraksi Fitur TF-IDF", "Metode Term Frequency - Inverse Document Frequency (TF-IDF) diterapkan untuk mentransformasikan token teks menjadi representasi vektor numerik berdasarkan bobot kepentingan kata."),
+        ("6. Pemodelan (Multinomial Logistic Regression)", "Tahap pelatihan (training) algoritma Logistic Regression multi-kelas untuk mempelajari pola relasi antara matriks bobot fitur TF-IDF dengan target label sentimen menggunakan Stratified K-Fold Cross Validation.")
+    ]
     
-    # --- BARU: TABEL SAMPEL HASIL PREPROCESSING SEPERTI DI COLAB ---
-    st.markdown('<div class="section-header">📋 Sampel Transformasi Data Preprocessing</div>', unsafe_allow_html=True)
-    st.markdown("Berikut adalah contoh perbandingan data komentar mentah dari TikTok sebelum dan sesudah melalui tahapan *text preprocessing*:")
-    
-    # Membuat representasi data frame simulasi preprocessing sesuai skripsimu
-    sample_data = {
-        'Komentar Asli (Raw Data)': [
-            "Waaah mantap bgt programnya!! moga berkah & tepat sasaran yaa 🥰👍 @jokowi #makanmalam",
-            "program makan gratis ini cuma habisin anggaran aja, mending buat fasilitas sekolah keles",
-            "Klo menurut gw sih biasa aja ya.. kita liat aja nanti realisasinya gmn pas udh jln."
-        ],
-        'Hasil Preprocessing (Clean Teks)': [
-            "mantap program moga berkah tepat sasaran",
-            "program makan gratis habis anggaran mending fasilitas sekolah",
-            "biasa lihat realisasi jalan"
-        ]
-    }
-    st.table(pd.DataFrame(sample_data))
+    for title, desc in steps:
+        st.markdown(f"""
+        <div class="card">
+            <span class="step-title">{title}</span><br>
+            <p style="margin-top: 5px; margin-bottom: 0px; color: #374151; font-size: 14px;">{desc}</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    if os.path.exists("images/alur.png"):
+        st.image("images/alur.png", caption="Diagram Alir Arsitektur Sistem", use_column_width=True)
 
-    # --- PIPELINE ALUR ---
-    st.markdown('<div class="section-header">⚙️ Pipeline & Alur Arsitektur Sistem</div>', unsafe_allow_html=True)
+# ================= PAGE 2: HASIL PENELITIAN & EVALUASI MODEL =================
+elif page == "📊 Hasil Penelitian & Evaluasi Model":
+    st.markdown('<div class="main-title">HASIL PENELITIAN & EVALUASI MODEL</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitle">Eksplorasi Data, Distribusi Kelas, dan Metrik Kinerja Akurasi</div>', unsafe_allow_html=True)
     
-    col_alur1, col_alur2 = st.columns([3, 2])
-    
-    with col_alur1:
-        steps = [
-            ("1. Pengumpulan Data (Scraping)", "Mengekstrak data komentar mentah dari platform TikTok menggunakan kata kunci program terkait (Total: 3.320 data mentah)."),
-            ("2. Preprocessing Teks", "Pbersihan otomatis meliputi Case Folding, Filtering, Tokenizing, Normalisasi Kata, dan Stopword Removal (Hasil Akhir: 2.965 data bersih)."),
-            ("3. Pelabelan Sentimen (Lexicon)", "Penentuan label target awal menggunakan kamus kata/pendekatan Lexicon-Based ke dalam kelas Positif, Netral, atau Negatif."),
-            ("4. Ekstraksi Fitur TF-IDF", "Transformasi token teks menjadi representasi vektor numerik matriks bobot kata berdasarkan derajat kepentingan istilah."),
-            ("5. Pemodelan (Logistic Regression)", "Pelatihan model klasifikasi multi-kelas menggunakan algoritma Multinomial Logistic Regression divalidasi dengan Stratified 5-Fold Cross Validation.")
-        ]
-        for title, desc in steps:
-            st.markdown(f"""
-            <div class="alur-card">
-                <span class="step-title">{title}</span>
-                <p style="margin-top: 3px; margin-bottom: 0px; color: #475569; font-size: 13.5px;">{desc}</p>
-            </div>
-            """, unsafe_allow_html=True)
-            
-    with col_alur2:
-        st.write("**Visualisasi Diagram Alir Sistem**")
-        if os.path.exists("images/alur.png"):
-            st.image("images/alur.png", caption="Diagram Alir Tahapan Penelitian", use_column_width=True)
-        else:
-            # Box placeholder estetik jika file gambar alur belum kamu upload ke folder github
-            st.info("💡 Kamu bisa meletakkan file diagram alirmu di folder `images/alur.png` pada repositori GitHub agar otomatis muncul di kolom kanan ini saat sidang.")
-
-# ================= PAGE 2: HASIL PENELITIAN & METRIK ASLI =================
-elif page == "📊 Eksplorasi Data & Kinerja Model":
-    st.markdown('<div class="main-title">EKSPLORASI DATA & EVALUASI KINERJA</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtitle">Eksplorasi Statistik Dataset Komentar TikTok dan Laporan Pengujian Validasi Model</div>', unsafe_allow_html=True)
-    
-    st.markdown('<div class="section-header">📈 Ringkasan Metrik Sebaran Dataset</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">Metrik Ringkasan Dataset (Overview)</div>', unsafe_allow_html=True)
     
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Total Dataset Bersih", f"{total_data} Komentar")
-    col2.metric("Sentimen Negatif (0)", f"{neg_data} ({neg_data/total_data*100:.0f}%)")
-    col3.metric("Sentimen Positif (2)", f"{pos_data} ({pos_data/total_data*100:.0f}%)")
-    col4.metric("Sentimen Netral (1)", f"{net_data} ({net_data/total_data*100:.0f}%)")
+    total_data = len(df)
+    pos_data = len(df[df["sentiment"] == "positif"])
+    net_data = len(df[df["sentiment"] == "netral"])
+    neg_data = len(df[df["sentiment"] == "negatif"])
     
-    st.markdown('<div class="section-header">📊 Hasil Visualisasi Penelitian</div>', unsafe_allow_html=True)
-    tab1, tab2, tab3 = st.tabs(["📊 Grafik Sebaran Interaktif", "☁️ WordCloud & Matrix", "📈 Tabel Evaluasi Per-Fold (Asli)"])
+    col1.metric("Total Dataset", f"{total_data} Baris")
+    col2.metric("Sentimen Positif (Label 2)", f"{pos_data} ({pos_data/max(1, total_data)*100:.0f}%)")
+    col3.metric("Sentimen Netral (Label 1)", f"{net_data} ({net_data/max(1, total_data)*100:.0f}%)")
+    col4.metric("Sentimen Negatif (Label 0)", f"{neg_data} ({neg_data/max(1, total_data)*100:.0f}%)")
+    
+    st.markdown('<div class="section-header">Visualisasi Hasil Penelitian & Evaluasi Model</div>', unsafe_allow_html=True)
+    
+    tab1, tab2, tab3, tab4 = st.tabs(["☁️ WordCloud", "📊 Distribusi Sentimen", "🎯 Confusion Matrix", "📈 Metrik Evaluasi (5-Fold)"])
     
     with tab1:
-        st.write("**Grafik Distribusi Kelas Sentimen (Plotly Interaktif)**")
-        chart_data = pd.DataFrame({
-            'Kelas Sentimen': ['Negatif (0)', 'Positif (2)', 'Netral (1)'],
-            'Jumlah Baris': [neg_data, pos_data, net_data]
-        })
-        fig = px.bar(chart_data, x='Kelas Sentimen', y='Jumlah Baris', color='Kelas Sentimen',
-                     color_discrete_sequence=['#EF4444', '#10B981', '#F59E0B'], text_auto=True)
-        fig.update_layout(showlegend=False, margin=dict(l=20, r=20, t=20, b=20), height=380)
-        st.plotly_chart(fig, use_container_width=True)
+        st.write("**WordCloud Hasil Preprocessing**")
+        if os.path.exists("wordcloud_hasil_preprocessing.png"):
+            st.image("wordcloud_hasil_preprocessing.png", use_column_width=True)
+        else:
+            st.info("💡 Grafik [wordcloud_hasil_preprocessing.png] belum terbaca di folder utama.")
             
     with tab2:
-        col_img1, col_img2 = st.columns(2)
-        with col_img1:
-            st.write("**WordCloud Kata Kunci Preprocessing**")
-            if os.path.exists("wordcloud_hasil_preprocessing.png"):
-                st.image("wordcloud_hasil_preprocessing.png", use_column_width=True)
-            else:
-                st.info("💡 Gambar `wordcloud_hasil_preprocessing.png` belum diletakkan di repositori.")
-        with col_img2:
-            st.write("**Confusion Matrix Hasil Pengujian**")
-            if os.path.exists("confusion_matrix_5fold.png"):
-                st.image("confusion_matrix_5fold.png", use_column_width=True)
-            else:
-                st.info("💡 Gambar `confusion_matrix_5fold.png` belum diletakkan di repositori.")
+        st.write("**Distribusi Hasil Pelabelan Sentimen**")
+        if os.path.exists("distribusi_hasil_pelabelan_sentimen.png"):
+            st.image("distribusi_hasil_pelabelan_sentimen.png", use_column_width=True)
+        else:
+            st.info("💡 Grafik [distribusi_hasil_pelabelan_sentimen.png] belum terbaca di folder utama.")
             
     with tab3:
-        st.write("**Tabel Hasil Running Stratified 5-Fold Cross Validation (Sesuai Notebook Laporan)**")
+        st.write("**Evaluasi 5-Fold Cross Validation (Confusion Matrix)**")
+        if os.path.exists("confusion_matrix_5fold.png"):
+            st.image("confusion_matrix_5fold.png", use_column_width=True)
+        else:
+            st.info("💡 Grafik [confusion_matrix_5fold.png] belum terbaca di folder utama.")
+
+    with tab4:
+        st.write("**Tabel Metrik Performa Model - Logistic Regression (5-Fold Cross Validation)**")
+        
+        # SINKRON 100% SESUAI GAMBAR TERAKHIR (image_b9b0ca.png)
         eval_data = {
             'Fold': ['Fold 1', 'Fold 2', 'Fold 3', 'Fold 4', 'Fold 5', 'Average'],
             'Accuracy': ['0.7437', '0.7605', '0.7622', '0.7845', '0.8111', '0.7724'],
@@ -196,4 +169,4 @@ elif page == "📊 Eksplorasi Data & Kinerja Model":
             'F1-Score': ['0.7454', '0.7578', '0.7583', '0.7820', '0.8088', '0.7705']
         }
         st.table(pd.DataFrame(eval_data))
-        st.success("🎯 Model Multinomial Logistic Regression menunjukkan performa seimbang pada seluruh fold pengujian dengan nilai rata-rata akurasi sebesar 0.7724.")
+        st.success("🎯 Model Multinomial Logistic Regression menunjukkan performa yang stabil dengan rata-rata akurasi sebesar 0.7724.")
