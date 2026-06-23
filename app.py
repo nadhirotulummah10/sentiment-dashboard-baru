@@ -47,7 +47,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 3. Fungsi Load Data Spesifik Distribusi Anda (Total 2965)
+# 3. Fungsi Load Data Distribusi Hasil Riset (Total 2965 baris bersih)
 @st.cache_data
 def load_data():
     file_path = "hasil_labeling_sentimen.csv"
@@ -73,12 +73,11 @@ def load_data():
                 return data
         except:
             pass
-    # Fallback otomatis data riset asli Anda jika berkas CSV bermasalah di server
     return pd.DataFrame({'sentiment': ['negatif'] * 1428 + ['positif'] * 975 + ['netral'] * 562})
 
 df = load_data()
 
-# ================= SIDEBAR NAVIGATION (KEMBALI KE AWAL) =================
+# ================= SIDEBAR NAVIGATION =================
 with st.sidebar:
     st.markdown("### Navigasi Sistem")
     page = st.radio(
@@ -96,10 +95,10 @@ if page == "🏠 Beranda & Alur":
     st.markdown('<div class="section-header">Pipeline & Alur Sistem Analisis</div>', unsafe_allow_html=True)
     
     steps = [
-        ("1. Pengumpulan Data", "Proses scraping data komentar dari platform TikTok menggunakan kata kunci program terkait. Data hasil scraping diekspor ke format berkas tabular (.csv) sebagai basis dataset mentah."),
-        ("2. Preprocessing Data", "Tahapan pembersihan data teks (text cleaning) meliputi Case Folding, Removal (URL, angka, username, emoji, tanda baca), Tokenizing, Normalization (perbaikan kata gaul), dan Filtering/Stopword Removal."),
+        ("1. Pengumpulan Data", "Proses scraping data komentar dari platform TikTok menggunakan kata kunci program terkait. Total data awal yang berhasil dikumpulkan adalah 3.320 baris data mentah."),
+        ("2. Preprocessing Data", "Tahapan pembersihan data teks (text cleaning) meliputi Case Folding, Removal (URL, angka, username, emoji, tanda baca), Tokenizing, Normalization (perbaikan kata gaul), dan Filtering/Stopword Removal sehingga menghasilkan 2.965 data bersih."),
         ("3. Pelabelan (Labeling)", "Proses penentuan kelas awal sentimen menjadi kelas Positif, Netral, atau Negatif menggunakan pendekatan berbasis kamus kata (Lexicon-Based)."),
-        ("4. Balance Data (Penyeimbangan Data)", "Mengatasi ketimpangan sebaran data (data imbalance) antar-kelas sentimen agar model klasifikasi Logistic Regression tidak condong (bias) terhadap kelas mayoritas."),
+        ("4. Balance Data (Penyeimbangan Data)", "Mengatasi ketimpangan sebaran data (data imbalance) antar-kelas sentimen menggunakan SMOTE agar model klasifikasi Logistic Regression tidak condong (bias) terhadap kelas mayoritas."),
         ("5. Ekstraksi Fitur TF-IDF", "Metode Term Frequency - Inverse Document Frequency (TF-IDF) diterapkan untuk mentransformasikan token teks menjadi representasi vektor numerik berdasarkan bobot kepentingan kata."),
         ("6. Pemodelan (Multinomial Logistic Regression)", "Tahap pelatihan (training) algoritma Logistic Regression multi-kelas untuk mempelajari pola relasi antara matriks bobot fitur TF-IDF dengan target label sentimen menggunakan Stratified K-Fold Cross Validation.")
     ]
@@ -128,7 +127,6 @@ elif page == "📊 Hasil Penelitian & Evaluasi Model":
     net_data = len(df[df["sentiment"] == "netral"])
     neg_data = len(df[df["sentiment"] == "negatif"])
     
-    # Perubahan pembulatan persentase tanpa desimal (:.0f}%) & Total Dataset
     col1.metric("Total Dataset", f"{total_data} Baris")
     col2.metric("Sentimen Positif (Label 2)", f"{pos_data} ({pos_data/max(1, total_data)*100:.0f}%)")
     col3.metric("Sentimen Netral (Label 1)", f"{net_data} ({net_data/max(1, total_data)*100:.0f}%)")
@@ -162,12 +160,13 @@ elif page == "📊 Hasil Penelitian & Evaluasi Model":
     with tab4:
         st.write("**Tabel Metrik Performa Model - Logistic Regression (5-Fold Cross Validation)**")
         
+        # Angka di bawah ini sinkron 100% dengan foto tabel log-reg fold yang Anda kirim terakhir (image_b95a6f.png)
         eval_data = {
-            'Fold': ['Fold 1', 'Fold 2', 'Fold 3', 'Fold 4', 'Fold 5', 'Rata-rata (Average)'],
-            'Accuracy': ['84.2%', '85.1%', '83.9%', '84.7%', '85.5%', '84.68%'],
-            'Precision': ['83.8%', '84.5%', '83.2%', '84.1%', '85.0%', '84.12%'],
-            'Recall': ['84.2%', '85.1%', '83.9%', '84.7%', '85.5%', '84.68%'],
-            'F1-Score': ['83.9%', '84.7%', '83.5%', '84.3%', '85.2%', '84.32%']
+            'Fold': ['Fold 1', 'Fold 2', 'Fold 3', 'Fold 4', 'Fold 5', 'Average'],
+            'Accuracy': ['0.8418', '0.8511', '0.8389', '0.8473', '0.8549', '0.8468'],
+            'Precision': ['0.8376', '0.8453', '0.8322', '0.8410', '0.8504', '0.8413'],
+            'Recall': ['0.8418', '0.8511', '0.8389', '0.8473', '0.8549', '0.8468'],
+            'F1-Score': ['0.8392', '0.8474', '0.8349', '0.8432', '0.8521', '0.8434']
         }
         st.table(pd.DataFrame(eval_data))
-        st.success("🎯 Model Multinomial Logistic Regression menunjukkan performa yang stabil di setiap fold.")
+        st.success("🎯 Model Multinomial Logistic Regression menunjukkan performa yang stabil dengan rata-rata akurasi sebesar 0.8468.")
